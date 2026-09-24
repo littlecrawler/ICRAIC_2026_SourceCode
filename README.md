@@ -85,8 +85,8 @@ Defaults: 60 deterministic tasks, three round-robin zones, 20 ms of simulated
 work per task, one through six worker threads, and ten runs per worker count.
 The executable asserts complete task accounting in every run and writes both
 raw and aggregated CSV files to the Git-ignored `benchmark-results/local/`
-directory. This keeps local reproductions separate from the reviewed reference
-snapshot used by the paper.
+directory. This keeps new reproduction runs separate from the original
+2026-09-15 measurements used by the paper.
 
 | Workers | Mean throughput (tasks/s) | Mean run p95 (ms) | Mean denials | Jain fairness |
 | ------: | ------------------------: | ----------------: | ------------: | ------------: |
@@ -110,12 +110,31 @@ separate local-output workflow.
 ```text
 .
 |-- robot_coordination/                 Rust library, demos, tests, benchmark
-|-- benchmark-results/                  Versioned reference CSVs; ignored local runs
-|-- benchmark-scalability_.../          Legacy course-report measurements
+|-- benchmark-results/                  2026-09-15 paper data; ignored local runs
+|-- benchmark-scalability_.../          Separate earlier course-report experiments
 `-- .github/workflows/ci.yml            Formatting, lint, and test checks
 ```
 
 Manuscript files are kept outside the repository; `/paper/` is Git-ignored.
 
-The legacy benchmark directory is retained for provenance but is not the source
-of the quantitative claims in the revised manuscript.
+## Experimental data used in the paper
+
+The paper uses the **original benchmark measurements recorded on 2026-09-15**:
+
+- [`benchmark-results/raw_runs.csv`](benchmark-results/raw_runs.csv) contains
+  the original measurements for each of the 60 runs.
+- [`benchmark-results/summary.csv`](benchmark-results/summary.csv) contains
+  statistics calculated from those measurements.
+
+The experiment was run after the retry-safe dispatch fix: one through six
+workers, ten runs per worker count, 60 tasks per run, three zones, and 20 ms
+per task.
+
+The 2026-09-24 manuscript revision adds capacity and retry-cost analysis of
+these same observations; it does not report a newly collected batch of
+experiments. Rebuilding this repository also left those CSV files unchanged.
+
+The separate `benchmark-scalability_robot_counts_with_cpu/` directory contains
+experiments from the earlier course report. Those files are retained for
+historical reference and are not inputs to the current paper's performance
+tables, throughput figure, or retry-cost calculations.
