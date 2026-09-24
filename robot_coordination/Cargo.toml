@@ -1,0 +1,11 @@
+[package]
+name = "robot_coordination"
+version = "0.1.0"
+edition = "2024"
+default-run = "robot_coordination"
+description = "TARDEM healthcare robot coordination concurrency testbed"
+
+[dependencies]
+rand = "0.8"
+
+[dev-dependencies]
