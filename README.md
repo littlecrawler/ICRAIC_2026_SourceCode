@@ -111,7 +111,6 @@ separate local-output workflow.
 .
 |-- robot_coordination/                 Rust library, demos, tests, benchmark
 |-- benchmark-results/                  2026-09-15 paper data; ignored local runs
-|-- benchmark-scalability_.../          Separate earlier course-report experiments
 `-- .github/workflows/ci.yml            Formatting, lint, and test checks
 ```
 
@@ -133,8 +132,3 @@ per task.
 The 2026-09-24 manuscript revision adds capacity and retry-cost analysis of
 these same observations; it does not report a newly collected batch of
 experiments. Rebuilding this repository also left those CSV files unchanged.
-
-The separate `benchmark-scalability_robot_counts_with_cpu/` directory contains
-experiments from the earlier course report. Those files are retained for
-historical reference and are not inputs to the current paper's performance
-tables, throughput figure, or retry-cost calculations.

@@ -12,9 +12,6 @@ Robot counts range from one to six, with ten independent runs per count.
 
 The 2026-09-24 manuscript revision reuses this snapshot and adds analysis of the
 same 60 runs; it does not introduce newly collected experimental observations.
-This snapshot is separate from the earlier course-report experiments in
-`../benchmark-scalability_robot_counts_with_cpu/`, which are not used for the
-current paper's quantitative results.
 
 Run the experiment from `robot_coordination`:
 
