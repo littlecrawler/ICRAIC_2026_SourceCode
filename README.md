@@ -128,7 +128,3 @@ The paper uses the **original benchmark measurements recorded on 2026-09-15**:
 The experiment was run after the retry-safe dispatch fix: one through six
 workers, ten runs per worker count, 60 tasks per run, three zones, and 20 ms
 per task.
-
-The 2026-09-24 manuscript revision adds capacity and retry-cost analysis of
-these same observations; it does not report a newly collected batch of
-experiments. Rebuilding this repository also left those CSV files unchanged.

@@ -10,9 +10,6 @@ each run creates 60 tasks in FIFO order, assigns them round-robin to three
 mutually exclusive zones, and simulates 20 ms of work while holding the selected zone.
 Robot counts range from one to six, with ten independent runs per count.
 
-The 2026-09-24 manuscript revision reuses this snapshot and adds analysis of the
-same 60 runs; it does not introduce newly collected experimental observations.
-
 Run the experiment from `robot_coordination`:
 
 ```powershell
