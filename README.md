@@ -129,6 +129,16 @@ The experiment was run after the retry-safe dispatch fix: one through six
 workers, ten runs per worker count, 60 tasks per run, three zones, and 20 ms
 per task.
 
+## Repository availability
+
+The source code and benchmark data accompany the paper as supplementary
+materials. The project repository is located at
+https://github.com/littlecrawler/ICRAIC_2026_SourceCode.
+The authors reserve the right to change the repository's visibility, including
+making it private; continued public access is not guaranteed.
+This statement concerns repository access and does not alter the terms of the
+MIT License.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
