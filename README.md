@@ -9,7 +9,7 @@ is a compact, in-process simulator for studying shared task dispatch, exclusive
 zone access, and heartbeat-based liveness monitoring. It makes the coordination
 state and failure modes small enough to inspect and reproduce.
 
-This repository does **not** implement robot navigation, networking, sensing,
+This repository does not implement robot navigation, networking, sensing,
 actuation, or clinical safety. A passing simulation is not evidence that a
 physical robot system is safe for hospital deployment.
 
