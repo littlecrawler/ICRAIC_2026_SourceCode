@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 default-run = "robot_coordination"
 description = "TARDEM healthcare robot coordination concurrency testbed"
+license = "MIT"
 
 [dependencies]
 rand = "0.8"

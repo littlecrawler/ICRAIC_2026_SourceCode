@@ -128,3 +128,7 @@ The paper uses the **original benchmark measurements recorded on 2026-09-15**:
 The experiment was run after the retry-safe dispatch fix: one through six
 workers, ten runs per worker count, 60 tasks per run, three zones, and 20 ms
 per task.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
