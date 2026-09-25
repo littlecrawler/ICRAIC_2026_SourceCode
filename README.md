@@ -131,11 +131,12 @@ per task.
 
 ## Repository availability
 
-The source code and benchmark data accompany the paper as supplementary
-materials. The project repository is located at
-https://github.com/littlecrawler/ICRAIC_2026_SourceCode.
-The authors reserve the right to change the repository's visibility, including
-making it private; continued public access is not guaranteed.
+The source code and reference benchmark data are included in the supplementary
+archive as a fixed snapshot for reproduction. The
+[project repository](https://github.com/littlecrawler/ICRAIC_2026_SourceCode)
+is publicly accessible at the time of submission. Its visibility may change
+in the future.
+
 This statement concerns repository access and does not alter the terms of the
 MIT License.
 
