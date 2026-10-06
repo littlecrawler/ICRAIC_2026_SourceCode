@@ -4,6 +4,12 @@
 
 **A Rust-based concurrency testbed for healthcare service robot coordination.**
 
+The [2026-10-06 dispatch study](benchmark-results/revision-20261006/README.md)
+adds blocking FIFO and ready-scan policies alongside the original tail retry,
+with **540 new measured runs, six workload families, and 64,800 task traces**.
+See the [point-by-point changes](docs/revision_changes.md) for the implementation
+and evidence added in this revision. All 14 automated tests pass locally.
+
 TARDEM (Task Allocation and Resource Dispatch Engine for Multi-Robot Systems)
 is a compact, in-process simulator for studying shared task dispatch, exclusive
 zone access, and heartbeat-based liveness monitoring. It makes the coordination
@@ -16,14 +22,15 @@ physical robot system is safe for hospital deployment.
 ## What is implemented
 
 - A mutex-protected FIFO task queue shared by worker threads.
-- One nonblocking mutex per zone, allowing work in different zones to overlap
+- One mutex per zone, allowing work in different zones to overlap
   while preventing simultaneous occupancy of the same zone.
 - A read-write-locked robot registry with idle, busy, and offline transitions.
 - A three-second heartbeat timeout and offline-to-idle recovery path.
 - Retry-safe dispatch: if a task's zone is occupied, the task moves to the back
   of the queue instead of being discarded.
-- Runtime counters, six integration tests, and a reproducible scalability
-  benchmark with raw observations.
+- Configurable task-preserving blocking FIFO and order-preserving ready scan.
+- Runtime counters, twelve integration tests, two benchmark tests, and
+  reproducible scalability and policy-comparison experiments with raw observations.
 
 ```mermaid
 flowchart LR
@@ -109,8 +116,10 @@ separate local-output workflow.
 
 ```text
 .
-|-- robot_coordination/                 Rust library, demos, tests, benchmark
-|-- benchmark-results/                  2026-09-15 paper data; ignored local runs
+|-- robot_coordination/                 Rust library, demos, tests, benchmarks
+|-- benchmark-results/                  Separate September and October datasets
+|-- scripts/                            Independent analysis and hash verification
+|-- docs/revision_changes.md            Point-by-point technical changes
 `-- .github/workflows/ci.yml            Formatting, lint, and test checks
 ```
 
@@ -118,7 +127,7 @@ Manuscript files are kept outside the repository; `/paper/` is Git-ignored.
 
 ## Experimental data used in the paper
 
-The paper uses the **original benchmark measurements recorded on 2026-09-15**:
+The original scalability study used measurements recorded on 2026-09-15:
 
 - [`benchmark-results/raw_runs.csv`](benchmark-results/raw_runs.csv) contains
   the original measurements for each of the 60 runs.
@@ -128,6 +137,13 @@ The paper uses the **original benchmark measurements recorded on 2026-09-15**:
 The experiment was run after the retry-safe dispatch fix: one through six
 workers, ten runs per worker count, 60 tasks per run, three zones, and 20 ms
 per task.
+
+The revised comparison uses the separate **2026-10-06 measurements** in
+[`benchmark-results/revision-20261006/`](benchmark-results/revision-20261006/README.md).
+They directly compare three dispatch policies across six workload families with
+1, 3, and 6 workers, ten repetitions, and 120 tasks per run. The dated directory
+includes inputs, per-task events, independent validation, and paired uncertainty
+estimates. The original measurements above are retained for provenance.
 
 ## Repository availability
 

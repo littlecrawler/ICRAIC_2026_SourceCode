@@ -1,0 +1,12 @@
+unix_start_seconds=1791258242
+os=windows
+arch=x86_64
+logical_processors=32
+processor=Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+repetitions=10
+tasks=120
+seed=20261006
+retry_sleep_ms=1
+profile=release
+rustc 1.94.1 (e408947bf 2026-03-25)
+processor_model_verified=Intel(R) Core(TM) i9-14900HX

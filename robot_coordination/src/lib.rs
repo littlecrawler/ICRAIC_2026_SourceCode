@@ -99,11 +99,11 @@ pub struct CoordinatorStats {
     pub total_timeouts_detected: u32,
 }
 
-/// Outcome of an atomic task dispatch attempt.
+/// Outcome of a task-preserving dispatch attempt.
 ///
-/// A task is removed from the queue only when its required zone lock is
-/// acquired. If the zone is busy, the task is returned to the queue so that a
-/// later attempt can execute it instead of silently losing it.
+/// A successful assignment carries the required zone guard. Nonblocking
+/// policies retain denied work in the queue; blocking FIFO retains the task
+/// in its dispatch call while waiting without holding the queue lock.
 pub enum DispatchOutcome<'a> {
     Assigned {
         task: Task,
@@ -114,6 +114,18 @@ pub enum DispatchOutcome<'a> {
         task_id: u32,
         zone: u32,
     },
+}
+
+/// Comparable task-selection policies sharing the same assignment protocol.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DispatchPolicy {
+    /// Original policy: try the head task and move it to the tail on denial.
+    RetryTail,
+    /// Retain a dequeued task and wait for its zone, without holding the queue.
+    FifoBlocking,
+    /// Select the first task whose zone is available, preserving skipped order.
+    /// At most one lock attempt per distinct zone is made in a queue scan.
+    ReadyScan,
 }
 
 impl RobotCoordinator {
@@ -228,6 +240,17 @@ impl RobotCoordinator {
     /// the back of the queue. This preserves the task while allowing work for
     /// other zones to make progress on subsequent attempts.
     pub fn dispatch_next_task(&self, robot_id: u32) -> Result<DispatchOutcome<'_>, String> {
+        self.dispatch_next_task_with_policy(robot_id, DispatchPolicy::RetryTail)
+    }
+
+    /// Dispatch with a selected policy. All policies acquire a zone before
+    /// committing robot state, and restore the task if the state recheck fails.
+    /// Blocking waits never hold the queue, registry, or statistics lock.
+    pub fn dispatch_next_task_with_policy(
+        &self,
+        robot_id: u32,
+        policy: DispatchPolicy,
+    ) -> Result<DispatchOutcome<'_>, String> {
         {
             let robots = self.robots.read().unwrap();
             let robot = robots
@@ -244,39 +267,84 @@ impl RobotCoordinator {
         }
 
         let mut queue = self.task_queue.lock().unwrap();
-        let Some(task) = queue.pop_front() else {
+        let Some(head) = queue.front() else {
             return Ok(DispatchOutcome::QueueEmpty);
         };
-
-        let zone = task.zone as usize;
-        if zone >= self.zone_locks.len() {
-            queue.push_front(task);
-            return Err(format!("Zone {} does not exist", zone));
+        let first_id = head.id;
+        let first_zone = head.zone;
+        if first_zone as usize >= self.zone_locks.len() {
+            return Err("Queued task refers to a zone that does not exist".to_string());
         }
 
-        {
-            let mut stats = self.stats.lock().unwrap();
-            stats.total_zone_access_attempts += 1;
-        }
-
-        let zone_guard = match self.zone_locks[zone].try_lock() {
-            Ok(guard) => guard,
-            Err(_) => {
-                let task_id = task.id;
-                let task_zone = task.zone;
-                queue.push_back(task);
+        let (task, zone_guard) = match policy {
+            DispatchPolicy::FifoBlocking => {
+                let task = queue.pop_front().unwrap();
                 drop(queue);
-
-                let mut stats = self.stats.lock().unwrap();
-                stats.total_zone_denials += 1;
-
-                return Ok(DispatchOutcome::ZoneBusy {
-                    task_id,
-                    zone: task_zone,
-                });
+                self.stats.lock().unwrap().total_zone_access_attempts += 1;
+                let guard = self.zone_locks[task.zone as usize].lock().unwrap();
+                (task, guard)
+            }
+            DispatchPolicy::RetryTail => {
+                let task = queue.pop_front().unwrap();
+                self.stats.lock().unwrap().total_zone_access_attempts += 1;
+                match self.zone_locks[task.zone as usize].try_lock() {
+                    Ok(guard) => {
+                        drop(queue);
+                        (task, guard)
+                    }
+                    Err(_) => {
+                        queue.push_back(task);
+                        drop(queue);
+                        self.stats.lock().unwrap().total_zone_denials += 1;
+                        return Ok(DispatchOutcome::ZoneBusy {
+                            task_id: first_id,
+                            zone: first_zone,
+                        });
+                    }
+                }
+            }
+            DispatchPolicy::ReadyScan => {
+                let mut attempted = vec![false; self.zone_locks.len()];
+                let mut attempts = 0;
+                let mut denied = 0;
+                let mut selected = None;
+                for (index, task) in queue.iter().enumerate() {
+                    let zone = task.zone as usize;
+                    if zone >= self.zone_locks.len() {
+                        return Err("Queued task refers to a zone that does not exist".to_string());
+                    }
+                    if attempted[zone] {
+                        continue;
+                    }
+                    attempted[zone] = true;
+                    attempts += 1;
+                    match self.zone_locks[zone].try_lock() {
+                        Ok(guard) => {
+                            selected = Some((index, guard));
+                            break;
+                        }
+                        Err(_) => denied += 1,
+                    }
+                }
+                let assignment =
+                    selected.map(|(index, guard)| (queue.remove(index).unwrap(), guard));
+                drop(queue);
+                {
+                    let mut stats = self.stats.lock().unwrap();
+                    stats.total_zone_access_attempts += attempts;
+                    stats.total_zone_denials += denied;
+                }
+                match assignment {
+                    Some(pair) => pair,
+                    None => {
+                        return Ok(DispatchOutcome::ZoneBusy {
+                            task_id: first_id,
+                            zone: first_zone,
+                        });
+                    }
+                }
             }
         };
-        drop(queue);
 
         {
             let mut robots = self.robots.write().unwrap();
