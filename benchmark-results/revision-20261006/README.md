@@ -3,6 +3,9 @@
 This dataset was measured on 2026-10-06. It contains **540 new runs and 64,800
 task executions**, separate from the 2026-09-15 scalability measurements in the
 parent directory. No row from the old experiment is relabeled as a new run.
+The revised paper presents the original scaling experiment first (Table II),
+followed by this direct comparison (Table III). Throughput ratios and confidence
+intervals here use only paired runs within this dataset.
 
 ## Policies and common implementation
 

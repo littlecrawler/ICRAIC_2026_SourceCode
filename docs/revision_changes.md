@@ -7,15 +7,20 @@ and private response letter are maintained separately from this source repositor
 | Concern addressed | Concrete change | Evidence and location |
 |---|---|---|
 | Technical contribution is limited to implementation | Added `DispatchPolicy`, task-preserving blocking FIFO, and order-preserving `ReadyScan` with one attempt per distinct zone per call. All policies share acquire, recheck, commit and rollback. The original API remains retry-tail by default. | `robot_coordination/src/lib.rs`; manuscript Section III and Fig. 1 |
-| No direct baseline comparison | Compare blocking FIFO, original tail retry, and ready scan using the same coordinator and paired input. Blocking FIFO releases the queue before waiting, so it remains a meaningful task-preserving baseline. | `robot_coordination/src/bin/coordination_study.rs`; manuscript Table II and Fig. 2 |
+| No direct baseline comparison | Compare blocking FIFO, original tail retry, and ready scan using the same coordinator and paired input. Blocking FIFO releases the queue before waiting, so it remains a meaningful task-preserving baseline. | `robot_coordination/src/bin/coordination_study.rs`; manuscript Table III and Fig. 2 |
 | Workload validation is narrow | Added six scenarios, three worker counts, ten repetitions, seeded paired inputs and shuffled execution order: 540 new runs. | `benchmark-results/revision-20261006/workloads.csv` and `raw_runs.csv`; manuscript Section IV |
-| Task counters alone cannot rule out omissions and duplicates | Record every task ID and service interval; runtime checks and an independent CSV audit cover identity, inputs, occupancy, counts and metric reconstruction. | `task_events.csv`, `validation.json`, `scripts/analyze_coordination_study.mjs`; Section IV-B |
+| Task counters alone cannot rule out omissions and duplicates | Record every task ID and service interval; runtime checks and an independent CSV audit cover identity, inputs, occupancy, counts and metric reconstruction. | `task_events.csv`, `validation.json`, `scripts/analyze_coordination_study.mjs`; Section IV-C |
 | Healthcare framing needs experimental support | Map independent deliveries, a shared pharmacy station, mixed service occupancy, ward-specific batches, request waves, and additional service locations to controlled workload dimensions and metrics. These remain synthetic software abstractions. | Experiment README workload table; manuscript Table I and Sections IV/V |
 | Research conclusions need tradeoffs and uncertainty | Report paired bootstrap intervals and all configuration results. Clustered rounds improve; the hotspot does not. Report extra lock attempts and less even allocation in six-worker mixed services. | `summary.csv`, `paired_comparisons.csv`; manuscript Section V |
-| Reproduction must include the revision | Add raw observations, full task traces, workload inputs, environment metadata, hash manifest, analysis and verification scripts. Retain the September dataset separately. | `benchmark-results/revision-20261006/` and `scripts/` |
+| Reproduction must include the revision | Add raw observations, full task traces, workload inputs, environment metadata, hash manifest, analysis and verification scripts. Retain the September dataset as the initial scalability study in the manuscript and supplementary package. | `benchmark-results/`, `benchmark-results/revision-20261006/`, and `scripts/`; Sections IV-A and V-A, Table II |
 
 ## Evidence recorded in this revision
 
+- The original 60 runs retain all 3,600 completion counts with no queue residue.
+  Their 1-to-6-worker table and resource-ceiling interpretation precede the new
+  comparisons. An independent script verifies the rounded summaries; the
+  historical records have no per-task ID traces and are not pooled with the
+  new study for ratios or uncertainty estimates.
 - 14 automated tests pass: six original integration tests, six new policy tests,
   and two workload/percentile tests.
 - 540 timed runs complete all 64,800 expected task executions with zero missing
@@ -41,8 +46,12 @@ policy superiority, crash recovery, or an acceptance decision.
   configurations, burst producer, task events, and runtime audit.
 - `scripts/analyze_coordination_study.mjs`: independent reconstruction,
   descriptive statistics, bootstrap intervals and manuscript result generation.
+- `scripts/analyze_original_scalability.mjs`: verify the original run counters
+  and rounded summaries and generate the retained scalability table.
 - `scripts/verify_snapshot.mjs`: verification of SHA-256 snapshot entries.
 - `benchmark-results/revision-20261006/`: measured data and protocol.
 - `README.md`: current experiment entry points and repository map.
 
 Original scalability raw files and default demo behavior are preserved.
+The manuscript retains its original title and five-page format, with the
+original scaling experiment followed by the new policy comparisons.

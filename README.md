@@ -7,6 +7,9 @@
 The [2026-10-06 dispatch study](benchmark-results/revision-20261006/README.md)
 adds blocking FIFO and ready-scan policies alongside the original tail retry,
 with **540 new measured runs, six workload families, and 64,800 task traces**.
+The manuscript also retains the original **60-run, 3,600-completion scalability
+study** before these direct comparisons. The two datasets have different
+protocols and are analyzed separately.
 See the [point-by-point changes](docs/revision_changes.md) for the implementation
 and evidence added in this revision. All 14 automated tests pass locally.
 
@@ -143,7 +146,14 @@ The revised comparison uses the separate **2026-10-06 measurements** in
 They directly compare three dispatch policies across six workload families with
 1, 3, and 6 workers, ten repetitions, and 120 tasks per run. The dated directory
 includes inputs, per-task events, independent validation, and paired uncertainty
-estimates. The original measurements above are retained for provenance.
+estimates. The original measurements above support the manuscript's initial
+scalability experiment (Sections IV-A and V-A, Table II); the new results support
+the direct comparisons (Table III). They are not pooled to calculate policy gains.
+Check the original rounded summaries independently with:
+
+```powershell
+node scripts/analyze_original_scalability.mjs benchmark-results
+```
 
 ## Repository availability
 
