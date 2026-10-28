@@ -126,7 +126,8 @@ separate local-output workflow.
 `-- .github/workflows/ci.yml            Formatting, lint, and test checks
 ```
 
-Manuscript files are kept outside the repository; `/paper/` is Git-ignored.
+Unpublished manuscripts, figure assets, and submission materials are maintained
+locally. The `/paper/` and `/manuscript/` directories are Git-ignored.
 
 ## Experimental data used in the paper
 
@@ -147,8 +148,8 @@ They directly compare three dispatch policies across six workload families with
 1, 3, and 6 workers, ten repetitions, and 120 tasks per run. The dated directory
 includes inputs, per-task events, independent validation, and paired uncertainty
 estimates. The original measurements above support the manuscript's initial
-scalability experiment (Sections IV-A and V-A, Table II); the new results support
-the direct comparisons (Table III). They are not pooled to calculate policy gains.
+scalability experiment (Sections IV-A and V-A, Table III); the new results support
+the direct comparisons (Table IV). They are not pooled to calculate policy gains.
 Check the original rounded summaries independently with:
 
 ```powershell

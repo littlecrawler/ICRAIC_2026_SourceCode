@@ -2,3 +2,4 @@ target/
 robot_coordination/.git-history-backup/
 benchmark-results/local/
 /paper/
+/manuscript/
